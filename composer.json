@@ -1,0 +1,19 @@
+{
+    "name": "pamorim/ocr_laravel5",
+    "description": "Cours OpenClassRoom Laravel 5",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Pedro Amorim",
+            "email": "dev.pamorim@gmail.com"
+        }
+    ],
+    "require": {},
+    "scripts": {
+        "dockerCompose": "docker-compose -f docker/docker-compose.yml --env-file docker/local.env ",
+        "start": "@dockerCompose up --build --detach",
+        "stop": "@dockerCompose stop",
+        "clean": "@dockerCompose --remove-orphans --volumes",
+        "log": "@dockerCompose logs -f"
+    }
+}

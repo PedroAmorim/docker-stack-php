@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+
+  nginx:
+    container_name: ${PROJECT_NAME}_nginx
+    image: nginx:1.19.6-alpine
+    command: ash -c 'until nginx -g "daemon off;"; do sleep 2; done'
+    ports:
+      - "443:443"
+      - "80:80"
+    depends_on:
+      - php
+    volumes:
+      - "./nginx/conf.d:/etc/nginx/conf.d"
+      - "www:/var/www/"
+      #- "../var/log/nginx/:/var/log/nginx/:delegated"
+
+  php:
+    container_name: ${PROJECT_NAME}_php
+    build:
+      context: ./php/
+      args:
+        - XDEBUG_ENABLED=${XDEBUG_ENABLED}
+        - XDEBUG_IDEKEY=${XDEBUG_IDEKEY}
+        - USER_ID=${UID}
+        - GROUP_ID=${GID}
+    volumes:
+      - www:/var/www
+      - "./php/php.ini:/usr/local/etc/php/php.ini"
+    environment:
+      # XDEBUG_CONFIG: "idekey=PHPSTORM remote_enable=1 remote_port=9000 remote_host=host.docker.internal remote_connect_back=0"
+      PHP_IDE_CONFIG: serverName=_
+    depends_on:
+      - mariadb
+
+  mariadb:
+    container_name: ${PROJECT_NAME}_mariadb
+    image: mariadb:10.4.13
+    volumes:
+      - dbData:/var/lib/mysql
+      - "./mariadb/conf.d:/etc/mysql/conf.d"
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: FILL_DATABASE_NAME
+      MYSQL_USER: FILL_USER
+      MYSQL_PASSWORD: FILL_PASSWORD
+    command: --character-set-server=utf8mb4
+
+volumes:
+  dbData:
+  www:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${PWD}/
+      o: bind
+
+
