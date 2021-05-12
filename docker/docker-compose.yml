@@ -9,12 +9,11 @@ services:
     ports:
       - "443:443"
       - "80:80"
-    depends_on:
-      - php
     volumes:
       - "./nginx/conf.d:/etc/nginx/conf.d"
       - "www:/var/www/"
-      #- "../var/log/nginx/:/var/log/nginx/:delegated"
+    depends_on:
+      - php
 
   php:
     container_name: ${PROJECT_NAME}_php
@@ -28,9 +27,6 @@ services:
     volumes:
       - www:/var/www
       - "./php/php.ini:/usr/local/etc/php/php.ini"
-    environment:
-      # XDEBUG_CONFIG: "idekey=PHPSTORM remote_enable=1 remote_port=9000 remote_host=host.docker.internal remote_connect_back=0"
-      PHP_IDE_CONFIG: serverName=_
     depends_on:
       - mariadb
 
@@ -43,11 +39,19 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: FILL_DATABASE_NAME
-      MYSQL_USER: FILL_USER
-      MYSQL_PASSWORD: FILL_PASSWORD
+      MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASS}
+      MYSQL_DATABASE: ${DATABASE_NAME}
+      MYSQL_USER: ${DATABASE_USER}
+      MYSQL_PASSWORD: ${DATABASE_USER_PASS}
     command: --character-set-server=utf8mb4
+
+  maildev:
+    container_name: ${PROJECT_NAME}_maildev
+    image: djfarrelly/maildev
+    command: ["bin/maildev", "--web", "1080", "--smtp", "1025", "--hide-extensions", "STARTTLS"]
+    ports:
+      - "1080:1080"
+      - "1025:1025"
 
 volumes:
   dbData:
