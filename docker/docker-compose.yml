@@ -55,11 +55,11 @@ services:
 
 volumes:
   dbData:
+    name: ${PROJECT_NAME}_db
   www:
+    name: ${PROJECT_NAME}_www
     driver: local
     driver_opts:
       type: none
-      device: ${PWD}/
+      device: ${PWD}/../
       o: bind
-
-
